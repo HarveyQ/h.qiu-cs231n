@@ -134,7 +134,7 @@ class KNearestNeighbor(object):
 
     Inputs:
     - dists: A numpy array of shape (num_test, num_train) where dists[i, j]
-      gives the distance betwen the ith test point and the jth training point.
+      gives the distance between the ith test point and the jth training point.
 
     Returns:
     - y: A numpy array of shape (num_test,) containing predicted labels for the
@@ -142,6 +142,7 @@ class KNearestNeighbor(object):
     """
     num_test = dists.shape[0]
     y_pred = np.zeros(num_test)
+
     for i in xrange(num_test):
       # A list of length k storing the labels of the k nearest neighbors to
       # the ith test point.
@@ -153,8 +154,8 @@ class KNearestNeighbor(object):
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      kmax_idx = np.argsort(dists)
-      closest_y = self.y_train[kmax_idx[0:k]]
+      kmax_idx = np.argsort(dists[i, :])
+      closest_y = (kmax_idx < k)
       #########################################################################
       # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
@@ -163,10 +164,12 @@ class KNearestNeighbor(object):
       # label.                                                                #
       #########################################################################
 
-      y_pred[i] =
+      y_pred[i] = self.y_train[closest_y]
+
+      # y_pred[i] = np.bincount(y_temppred).argmax()
+
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
-
     return y_pred
 
