@@ -1,4 +1,6 @@
 import numpy as np
+from past.builtins import xrange
+
 
 class KNearestNeighbor(object):
   """ a kNN classifier with L2 distance """
@@ -71,9 +73,7 @@ class KNearestNeighbor(object):
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        diff = X[i, :] - self.X_train[j, :]
-        diff_sq = np.power(diff, 2)
-        dists[i, j] = np.sum(diff_sq)
+        pass
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -95,9 +95,7 @@ class KNearestNeighbor(object):
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-      # using broadcasting to complete this
-      diff = X[i, :] - self.X_train
-      dists[i, :] = np.sum(np.power(diff, 2), axis=1)
+      pass
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -125,14 +123,7 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-    te_sumsq = np.sum(np.power(X,2), axis=1)
-    tr_sumsq = np.sum(np.power(self.X_train,2), axis=1)
-    mul_prod = np.dot(X, self.X_train.T)
-
-    # l2 distance(i,j) = sum_sq(Xte(i)) + sum_sq(Xtr(j)) - 2Xte(i)*Xtr(j)
-    # the vectorized implementation for the full matrices is:
-    dists = tr_sumsq + np.matrix(te_sumsq).T - 2*mul_prod
-
+    pass
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
@@ -145,7 +136,7 @@ class KNearestNeighbor(object):
 
     Inputs:
     - dists: A numpy array of shape (num_test, num_train) where dists[i, j]
-      gives the distance between the ith test point and the jth training point.
+      gives the distance betwen the ith test point and the jth training point.
 
     Returns:
     - y: A numpy array of shape (num_test,) containing predicted labels for the
@@ -153,23 +144,18 @@ class KNearestNeighbor(object):
     """
     num_test = dists.shape[0]
     y_pred = np.zeros(num_test)
-
     for i in xrange(num_test):
       # A list of length k storing the labels of the k nearest neighbors to
       # the ith test point.
       closest_y = []
-      ########################################################################
+      #########################################################################
       # TODO:                                                                 #
       # Use the distance matrix to find the k nearest neighbors of the ith    #
       # testing point, and use self.y_train to find the labels of these       #
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-
-
-      # this new method is WRONG!!!!
-      idx_sort = np.argsort(dists[i, :])
-      closest_y = idx_sort[:k]
+      pass
       #########################################################################
       # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
@@ -177,14 +163,10 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-
-      y_pred_k = self.y_train[closest_y].flatten()
-      # y_pred_k = np.reshape(y_pred_k, y_pred_k.shape[1])
-
-      y_pred[i] = np.bincount(y_pred_k).argmax()
-
+      pass
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
+
     return y_pred
 
