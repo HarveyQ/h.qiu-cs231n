@@ -23,37 +23,18 @@ def svm_loss_naive(W, X, y, reg):
   dW = np.zeros(W.shape) # initialize the gradient as zero
 
   # compute the loss and the gradient
-  num_classes = W.shape[1]  # == C
+  num_classes = W.shape[1]
   num_train = X.shape[0]
-  loss = 0.0  # initialise lost
+  loss = 0.0
   for i in xrange(num_train):
     scores = X[i].dot(W)
     correct_class_score = scores[y[i]]
-
-    margin_count = 0  # reset margin count for each image
-
     for j in xrange(num_classes):
       if j == y[i]:
         continue
-      # for j ~= y[i], namely the "wrong" classes
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
         loss += margin
-        margin_count += 1
-
-    # calculate the contribution to gradient for this image
-    scaled_Xi = margin_count * X[i].T
-    dW_temp = scaled_Xi * np.full(W.shape, 1.0)
-    dW_temp[:, y[i]] = - scaled_Xi  # inverse the value before adding to overall gradient
-
-    # add the contribution to the overall gradient
-    dW += dW_temp
-
-  """
-  2 May:
-  the gradient flow to W is the same magnitude except dW_yi = - sum...(x_i)
-  let's try this idea out and then do a power nap before Copenhagen
-  """
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
@@ -61,15 +42,6 @@ def svm_loss_naive(W, X, y, reg):
 
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
-
-  """
-  we also want the gradient to be divided by N and then added to the gradient
-  of regularisation
-  """
-  dW /= num_train
-
-  # add regularisation to the loss
-  dW += 2.0 * reg * W
 
   #############################################################################
   # TODO:                                                                     #
@@ -79,16 +51,7 @@ def svm_loss_naive(W, X, y, reg):
   # loss is being computed. As a result you may need to modify some of the    #
   # code above to compute the gradient.                                       #
   #############################################################################
-  """
-  The gradient of the SVM loss, according to derivation by calculus, can be
-  acquired effectively by:
 
-  For each image (data point):
-  1. count the number of classes that failed to meet the margin requirement
-  2. the contribution to the loss from this image = x[i] * num_counted for all i ~= yi
-  negative that for i = yi
-
-  """
 
   return loss, dW
 
