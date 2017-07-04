@@ -73,7 +73,7 @@ class KNearestNeighbor(object):
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        pass
+        pass  # don't implement this, takes forever to calculate
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -95,7 +95,10 @@ class KNearestNeighbor(object):
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-      pass
+      example_test = X[i, :]
+      diff_matrix = example_test - self.X_train  # calculate dists with boradcasting
+      dists_temp = np.sum(np.power(diff_matrix, 2), axis=1)
+      dists[i, :] = np.sqrt(dists_temp)
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -110,7 +113,7 @@ class KNearestNeighbor(object):
     """
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
-    dists = np.zeros((num_test, num_train)) 
+    dists = np.zeros((num_test, num_train))
     #########################################################################
     # TODO:                                                                 #
     # Compute the l2 distance between all test points and all training      #
@@ -123,11 +126,39 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-    pass
+    base_matrix = np.ones((num_test, num_train))
+    matrix_test = base_matrix * (np.diag(X.dot(X.T)).reshape((num_test, 1)))
+    matrix_train = base_matrix * (np.diag(self.X_train.dot(self.X_train.T)).reshape((1, num_train)))
+    dists_temp = matrix_test + matrix_train - 2 * X.dot(self.X_train.T)
+    dists = np.sqrt(dists_temp)
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
     return dists
+
+  @staticmethod
+  def label_vote(closest_y):
+    """
+    Find predicted label from closest k labels by majority voting
+    Settle ties by choosing the smaller label
+
+    Input:
+     - closest_y: array of shape (k,) with the label of k closest training points
+    Returns:
+     - label_pred: the predicted label
+    """
+    label_pool = np.unique(closest_y)
+    max_count = 0
+    label_pred = 0
+    for l in label_pool:
+        label_count = np.sum(closest_y == l)
+        if label_count > max_count:
+            max_count = label_count
+            label_pred = l
+        elif label_count == max_count:
+            if l < label_pred:
+                label_pred = l
+    return label_pred
 
   def predict_labels(self, dists, k=1):
     """
@@ -153,9 +184,10 @@ class KNearestNeighbor(object):
       # Use the distance matrix to find the k nearest neighbors of the ith    #
       # testing point, and use self.y_train to find the labels of these       #
       # neighbors. Store these labels in closest_y.                           #
-      # Hint: Look up the function numpy.argsort.                             #
+      # Hint: Look up the function numpy.argsort.                               #
       #########################################################################
-      pass
+      closest_idx = np.argsort(dists[i, :])
+      closest_y = self.y_train[closest_idx[:k]]  # label of k nearest points
       #########################################################################
       # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
@@ -163,10 +195,10 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      pass
+      # find a majority in 'closest_y'
+      y_pred[i] = self.label_vote(closest_y)
+
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
-
     return y_pred
-
