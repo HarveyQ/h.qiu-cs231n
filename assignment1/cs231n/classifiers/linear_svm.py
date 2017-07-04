@@ -20,56 +20,6 @@ def svm_loss_naive(W, X, y, reg):
   - loss as single float
   - gradient with respect to weights W; an array of same shape as W
   """
-  dW = np.zeros(W.shape) # initialize the gradient as zero
-
-  # compute the loss and the gradient
-  num_classes = W.shape[1]  # == C
-  num_train = X.shape[0]
-  loss = 0.0  # initialise lost
-  for i in xrange(num_train):
-    scores = X[i].dot(W)
-    correct_class_score = scores[y[i]]
-
-    margin_count = 0  # reset margin count for each image
-
-    for j in xrange(num_classes):
-      if j == y[i]:
-        continue
-      # for j ~= y[i], namely the "wrong" classes
-      margin = scores[j] - correct_class_score + 1 # note delta = 1
-      if margin > 0:
-        loss += margin
-        margin_count += 1
-
-    # calculate the contribution to gradient for this image
-    scaled_Xi = margin_count * X[i].T
-    dW_temp = scaled_Xi * np.full(W.shape, 1.0)
-    dW_temp[:, y[i]] = - scaled_Xi  # inverse the value before adding to overall gradient
-
-    # add the contribution to the overall gradient
-    dW += dW_temp
-
-  """
-  2 May:
-  the gradient flow to W is the same magnitude except dW_yi = - sum...(x_i)
-  let's try this idea out and then do a power nap before Copenhagen
-  """
-
-  # Right now the loss is a sum over all training examples, but we want it
-  # to be an average instead so we divide by num_train.
-  loss /= num_train
-
-  # Add regularization to the loss.
-  loss += reg * np.sum(W * W)
-
-  """
-  we also want the gradient to be divided by N and then added to the gradient
-  of regularisation
-  """
-  dW /= num_train
-
-  # add regularisation to the loss
-  dW += 2.0 * reg * W
 
   #############################################################################
   # TODO:                                                                     #
@@ -79,16 +29,56 @@ def svm_loss_naive(W, X, y, reg):
   # loss is being computed. As a result you may need to modify some of the    #
   # code above to compute the gradient.                                       #
   #############################################################################
-  """
-  The gradient of the SVM loss, according to derivation by calculus, can be
-  acquired effectively by:
-
-  For each image (data point):
-  1. count the number of classes that failed to meet the margin requirement
-  2. the contribution to the loss from this image = x[i] * num_counted for all i ~= yi
-  negative that for i = yi
 
   """
+    2 May notes:
+    the gradient flow to W for
+    1) the correct class is -(margin_count * x_i)
+    2) all other classes is x_i if margin>0
+    let's try this idea out] and then do a power nap before Copenhagen
+
+    we also want the gradient to be divided by N and then added to the gradient
+    of regularisation
+
+    The gradient of the SVM loss, according to derivation by calculus, can be
+    acquired effectively by:
+
+    For each image (data point):
+    1. count the number of classes that failed to meet the margin requirement
+    2. the contribution to the loss from this image = x[i] * num_counted for all i ~= yi
+    negative that for i = yi
+
+  """
+
+  num_classes = W.shape[1]  # == C
+  num_train = X.shape[0]
+
+  loss = 0.0
+  dW = np.zeros(W.shape)  # initialise dW
+
+  for i in xrange(num_train):
+    # calculate scores
+    scores = X[i].dot(W)
+    scores_correct = scores[y[i]]
+
+    margin_count = 0  # reset margin count for each image
+    dW_temp = np.zeros(W.shape)  # reset dW_temp matrix for each image
+
+    for j in xrange(num_classes):
+        if j == y[i]:  # skip correct class
+            continue
+        margin = scores[j] - scores_correct + 1
+        if margin > 0:  # max(0, margin)
+            loss += margin
+            margin_count += 1
+            dW_temp[:, j] = X[i].T
+
+    dW_temp[:, y[i]] = - margin_count * X[i].T
+    dW += dW_temp  # add to total gradient
+
+  # final loss and dW for return
+  loss = loss/num_train + np.sum((np.power(W, 2)))  # average, add regularisation
+  dW = dW/num_train + 2.0*reg*W
 
   return loss, dW
 
@@ -128,3 +118,4 @@ def svm_loss_vectorized(W, X, y, reg):
   #############################################################################
 
   return loss, dW
+

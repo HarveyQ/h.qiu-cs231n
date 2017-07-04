@@ -4,7 +4,7 @@
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredPackages">
         <value>
-          <list size="35">
+          <list size="37">
             <item index="0" class="java.lang.String" itemvalue="traitlets" />
             <item index="1" class="java.lang.String" itemvalue="decorator" />
             <item index="2" class="java.lang.String" itemvalue="jupyter-core" />
@@ -40,6 +40,8 @@
             <item index="32" class="java.lang.String" itemvalue="matplotlib" />
             <item index="33" class="java.lang.String" itemvalue="pytz" />
             <item index="34" class="java.lang.String" itemvalue="Pillow" />
+            <item index="35" class="java.lang.String" itemvalue="pexpect" />
+            <item index="36" class="java.lang.String" itemvalue="jsonschema" />
           </list>
         </value>
       </option>
