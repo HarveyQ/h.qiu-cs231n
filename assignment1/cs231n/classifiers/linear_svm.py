@@ -50,7 +50,7 @@ def svm_loss_naive(W, X, y, reg):
 
   """
 
-  num_classes = W.shape[1]  # == C
+  num_classes = W.shape[1]
   num_train = X.shape[0]
 
   loss = 0.0
@@ -91,13 +91,29 @@ def svm_loss_vectorized(W, X, y, reg):
   """
   loss = 0.0
   dW = np.zeros(W.shape) # initialize the gradient as zero
+  delta = 1  # margin separation set to 1
+
+  # get some dimensions
+  num_train = X.shape[0]
+  num_classes = W.shape[1]
 
   #############################################################################
   # TODO:                                                                     #
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+
+  scores = X.dot(W)
+  correct_scores = scores[np.arange(num_train), y]
+  correct_scores = np.reshape(correct_scores, (correct_scores.shape[0], -1))
+
+  margin = scores - correct_scores + delta
+  margin = np.maximum(0, margin)
+
+  reg_term = reg * np.sum(np.power(W, 2))
+  loss_term = np.sum(margin) - num_train * delta  # remove the margins for j=yi
+  loss = loss_term/num_train + reg_term
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -112,7 +128,33 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+
+  coeff_mtrx = np.zeros((num_train, num_classes))
+  margin[np.arange(num_train), y] = 0  # remove the margin for j = yi (delta)
+  coeff_mtrx[margin > 0] = 1
+  margin_count_vec = np.sum(margin > 0, axis=1)
+  coeff_mtrx[np.arange(num_train), y] = -margin_count_vec
+
+  dW = np.dot(X.T, coeff_mtrx)/num_train + 2.0*reg*W
+
+
+  ######### implement with a loop over training images ######
+  # # ver1: check coeff matrix idea
+  # dW = np.zeros(W.shape)  # initialise
+  # for i in xrange(num_train):
+  #   dW += np.outer(X[i].T, coeff_mtrx[i])
+  # dW = dW/num_train + 2*reg*W
+
+
+  # # ver2: by-pass the coeff matrix idea, produce coefficients in each loop
+  # dW = np.zeros(W.shape)  # initialise
+  # for i in xrange(num_train):
+  #     coeff_vec = np.zeros((num_classes,))
+  #     coeff_vec[margin[i] > 0] = 1
+  #     coeff_vec[y[i]] = -np.sum(margin[i] > 0)
+  #     dW += np.outer(X[i].T, coeff_vec)
+  #
+  # dW = dW/num_train + 2*reg*W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
