@@ -32,7 +32,7 @@ class LinearClassifier(object):
     """
     num_train, dim = X.shape
     num_classes = np.max(y) + 1 # assume y takes values 0...K-1 where K is number of classes
-    if self.W is None:
+    if self.W is None:  # means this is done for the first time
       # lazily initialize W
       self.W = 0.001 * np.random.randn(dim, num_classes)
 
@@ -53,7 +53,9 @@ class LinearClassifier(object):
       # Hint: Use np.random.choice to generate indices. Sampling with         #
       # replacement is faster than sampling without replacement.              #
       #########################################################################
-      pass
+      sample_idx = np.random.choice(num_train, batch_size, replace=True)
+      X_batch = X[sample_idx]  # changing the shape to (batch_size, dim)
+      y_batch = y[sample_idx]
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
@@ -67,7 +69,8 @@ class LinearClassifier(object):
       # TODO:                                                                 #
       # Update the weights using the gradient and the learning rate.          #
       #########################################################################
-      pass
+      # vanilla version of update
+      self.W += - learning_rate * grad
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
@@ -75,7 +78,7 @@ class LinearClassifier(object):
       if verbose and it % 100 == 0:
         print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
-    return loss_history
+    return loss_history  # a list of loss values during optimisation iterations
 
   def predict(self, X):
     """
@@ -96,7 +99,8 @@ class LinearClassifier(object):
     # TODO:                                                                   #
     # Implement this method. Store the predicted labels in y_pred.            #
     ###########################################################################
-    pass
+    scores = X.dot(self.W)
+    y_pred = np.argmax(scores, axis=1)
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
@@ -123,7 +127,7 @@ class LinearClassifier(object):
 class LinearSVM(LinearClassifier):
   """ A subclass that uses the Multiclass SVM loss function """
 
-  def loss(self, X_batch, y_batch, reg):
+  def loss(self, X_batch, y_batch, reg):  # this overrides the def in parent lass LinearClassifier
     return svm_loss_vectorized(self.W, X_batch, y_batch, reg)
 
 
