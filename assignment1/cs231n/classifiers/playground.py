@@ -1,3 +1,41 @@
+import numpy as np
+
+# results = {}
+
+learning_rates = [1e-7, 5e-5]
+regularization_strengths = [2.5e4, 5e4]
+
+
+num_lr = len(learning_rates)
+num_reg = len(regularization_strengths)
+hyper_para = np.zeros((num_lr * num_reg, 2))
+idx = 0
+for lr in learning_rates:
+    for reg in regularization_strengths:
+        hyper_para[idx] = np.array([lr, reg])
+        idx += 1
+print(hyper_para)
+
+# num_lr = len(learning_rates)
+# num_reg = len(regularization_strengths)
+# idx = 0
+# hyper_para = np.zeros((num_lr * num_reg, 2))
+# for idx_lr, lr in enumerate(learning_rates):
+#     for idx_reg, reg in enumerate(regularization_strengths):
+#         hyper_para[idx] = np.array([lr, reg])
+#         idx += 1
+#
+# print(hyper_para)
+# for (lr, reg) in hyper_para:
+#     results[(lr, reg)] = [10, 10]
+
+
+# for lr, reg  in sorted(results):
+#     train_acc, val_acc = results[(lr, reg)]
+#     print('%e, %e, %f, %f' % (lr, reg, train_acc, val_acc))
+
+
+
 # class test_class(object):
 #     def __init__(self):
 #         self.y = None
@@ -19,21 +57,21 @@
 # regularization_strengths = [2.5e4, 5e4]
 #
 # num_lr = len(learning_rates)
-# num_rs = len(regularization_strengths)
-# hyper_para = np.zeros((num_lr * num_rs, 2))
+# num_reg = len(regularization_strengths)
+# hyper_para = np.zeros((num_lr * num_reg, 2))
 #
 # for idx_lr, lr in enumerate(learning_rates):
-#     for idx_rs, rs in enumerate(regularization_strengths):
-#         idx = idx_lr + idx_rs
-#         hyper_para[idx] = np.array([lr, rs])
+#     for idx_reg, reg in enumerate(regularization_strengths):
+#         idx = idx_lr + idx_reg
+#         hyper_para[idx] = np.array([lr, reg])
 #
 # # print(hyper_para)
 #
 #
-# for (lr, rs) in hyper_para:
+# for (lr, reg) in hyper_para:
 #     pass
 #
-# print(lr, rs)
+# print(lr, reg)
 
 # from random import randrange
 # import numpy as np
