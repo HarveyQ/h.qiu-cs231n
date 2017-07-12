@@ -1,20 +1,35 @@
 import numpy as np
 
-# results = {}
+# trying the lambda function
+def full_function(input1, input2):
+    x = input1 * input2
+    y = input1 + input2
+    return x, y
 
-learning_rates = [1e-7, 5e-5]
-regularization_strengths = [2.5e4, 5e4]
+input2 = 3
+lf1 = lambda input1: full_function(input1, input2)
+print(lf1(input1=2))
 
 
-num_lr = len(learning_rates)
-num_reg = len(regularization_strengths)
-hyper_para = np.zeros((num_lr * num_reg, 2))
-idx = 0
-for lr in learning_rates:
-    for reg in regularization_strengths:
-        hyper_para[idx] = np.array([lr, reg])
-        idx += 1
-print(hyper_para)
+lf2 = lambda input_tuple: full_function(input_tuple[0], input_tuple[1])
+print(lf2((2, 3)))
+
+
+# # results = {}
+#
+# learning_rates = [1e-7, 5e-5]
+# regularization_strengths = [2.5e4, 5e4]
+#
+#
+# num_lr = len(learning_rates)
+# num_reg = len(regularization_strengths)
+# hyper_para = np.zeros((num_lr * num_reg, 2))
+# idx = 0
+# for lr in learning_rates:
+#     for reg in regularization_strengths:
+#         hyper_para[idx] = np.array([lr, reg])
+#         idx += 1
+# print(hyper_para)
 
 # num_lr = len(learning_rates)
 # num_reg = len(regularization_strengths)

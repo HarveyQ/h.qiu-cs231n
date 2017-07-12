@@ -38,7 +38,7 @@ def softmax_loss_naive(W, X, y, reg):
     # calculate loss of this data point
     xi = X[i]
     scores = xi.dot(W)  # calculate score of data point Xi
-    const = math.exp(-np.amax(scores))  # constant for numerical stability
+    const = -np.amax(scores)  # constant for numerical stability
     e_scores = np.exp(scores + const)
     Li = -math.log(e_scores[y[i]]/(np.sum(e_scores)))
     loss += Li
@@ -84,11 +84,27 @@ def softmax_loss_vectorized(W, X, y, reg):
   # regularization!                                                           #
   #############################################################################
 
+  scores = X.dot(W)  # calculate scores
 
-  # loss =
-  # dW =
-  pass
-  #############################################################################
+  # calculate loss
+  const_vec = -np.amax(scores, axis=1)  # constant for numerical stability
+  scores = scores + const_vec.reshape((num_train, 1))
+  sum_correct_score = np.sum(scores[np.arange(num_train), y])
+  sum_log_exp = np.sum(np.log(np.sum(np.exp(scores), axis=1)))
+  loss = - sum_correct_score + sum_log_exp
+
+  loss_reg_term = reg * np.sum(np.power(W, 2))  # calculate regularisation term
+  loss = loss/num_train + loss_reg_term  # finalise loss
+
+  # calculate gradient
+  e_scores = np.exp(scores)
+  sum_e_scores = np.reshape(np.sum(e_scores, axis=1), (num_train,1))
+  M = e_scores * 1.0/sum_e_scores
+  Y = np.zeros((num_train, num_class))
+  Y[np.arange(num_train), y] = 1
+  dW = -np.dot(X.T, Y) + np.dot(X.T, M)
+  dW = dW/num_train + 2*reg*W  # finalise the gradient
+    #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
 

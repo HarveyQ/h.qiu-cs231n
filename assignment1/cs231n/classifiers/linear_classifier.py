@@ -4,7 +4,7 @@ import numpy as np
 from cs231n.classifiers.linear_svm import *
 from cs231n.classifiers.softmax import *
 from past.builtins import xrange
-
+# 'import *' imports all functions to current namespace, this is not encouraged in general
 
 class LinearClassifier(object):
 
