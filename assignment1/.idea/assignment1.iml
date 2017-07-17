@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.5.3 (~/anaconda3/envs/cs231n-py35/bin/python3.5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.5.3 (ssh://qiuhuaqi@35.185.217.151:22/home/qiuhuaqi/anaconda3/envs/py35/bin/python3.5)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="pycharm_remote_test_project" />
   </component>
