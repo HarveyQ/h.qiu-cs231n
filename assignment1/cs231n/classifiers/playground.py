@@ -14,9 +14,23 @@ print(lf1(input1=2))
 lf2 = lambda input_tuple: full_function(input_tuple[0], input_tuple[1])
 print(lf2((2, 3)))
 
-# 2017-07-17 testing PyCharm remote deployment:
-# making a change in local project
+'''
+PyCharm remote deployment testing
 
+# 2017-07-17 testing PyCharm remote deployment:
+making a change in local project
+
+
+# 2017-07-18:
+Test 1:
+making a change on DOWNLOADED file
+sync, check the remote file
+
+Test 2:
+making change on remote host
+sync, check the local file for this change
+
+'''
 
 # # results = {}
 #
