@@ -69,6 +69,9 @@ class TwoLayerNet(object):
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
 
+    # a few more dimensions needed
+    H, C = W2.shape # size of hidden layer
+
     # Compute the forward pass
     scores = None
     #############################################################################
@@ -76,7 +79,23 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+
+    # the bias trick
+    W1 = np.vstack((W1, b1.reshape((1, H))))
+    W2 = np.vstack((W2, b2.reshape((1, C))))
+
+    ## staged forward path
+    # 1st FC o/p
+    X = np.hstack((X, np.ones((N, 1))))  # bias trick
+    fc1 = np.dot(X, W1)
+
+    # 1st ReLU o/p
+    fc1_relu = np.maximum(0, fc1)
+
+    # 2nd FC o/p
+    fc1_relu = np.hstack((fc1_relu, np.ones((N, 1))))  # bias trick
+    scores = np.dot(fc1_relu, W2)
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -93,7 +112,21 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    pass
+
+    # calculate Softmax loss from Neural Net scores
+    # *copied from Softmax classifier
+    const_vec = -np.amax(scores, axis=1)  # constant for numerical stability
+    scores += const_vec.reshape((N, 1))  # add constant to scores
+
+    sum_correct_score = np.sum(scores[range(N), y])  # 1st term of data loss
+    escores = np.exp(scores)
+    sum_log_exp = np.sum(np.log(np.sum(escores, axis=1)))  # 2nd term of ..
+
+    data_loss = - sum_correct_score + sum_log_exp  # data loss
+    reg_loss = np.sum(np.power(W1, 2)) + np.sum(np.power(W2, 2))
+
+    loss = (1/N) * data_loss + reg * reg_loss  # final loss
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -105,7 +138,35 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+
+    ## staged backprop: calculate gradient from data loss to weights W1 and W2
+    # into Softmax loss: dL/dfc2
+    sum_escores_inv = 1.0/np.sum(escores, axis=1)
+    dfc2 = escores * sum_escores_inv.reshape((len(sum_escores_inv), -1))  # multiply with broadcast
+    dfc2[range(N), y] += -1
+    dfc2 /= N
+
+    # into FC2: dL/dW2 and dL/dReLU
+    dW2 = np.dot(fc1_relu.T, dfc2)  # into W2
+    dReLU = np.dot(dfc2, W2[:-1].T)
+
+    # into ReLU: dL/dfc1
+    relu_mask = fc1 < 0
+    dfc1 = dReLU
+    dfc1[relu_mask] = 0  # kill gradient at fc<0
+
+    # into FC1 (with the bias trick): dL/dW1
+    dW1 = np.dot(X.T, dfc1)
+
+    ## unpack gradients
+    # include gradient from L2 regularisation
+    grads['W1'] = dW1[:-1] + 2 * reg * W1[:-1]
+    grads['W2'] = dW2[:-1] + 2 * reg * W2[:-1]
+
+    # gradient to bias
+    grads['b1'] = dW1[-1] + 2 * reg * W1[-1]
+    grads['b2'] = dW2[-1] + 2 * reg * W2[-1]
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################

@@ -18,7 +18,7 @@ print(lf2((2, 3)))
 PyCharm remote deployment testing
 
 # 2017-07-17 testing PyCharm remote deployment:
-making a change in local project
+making a change in local project 
 
 
 # 2017-07-18:
@@ -29,6 +29,18 @@ sync, check the remote file
 Test 2:
 making change on remote host
 sync, check the local file for this change
+
+
+# 2017-07-19:
+Test 3:
+change on local, auto-save upload upon save?
+Result: yes
+
+Test 4:
+auto-upload diabled, make a change and save, upload?
+Result: no, has to be done manually
+
+another try?
 
 '''
 

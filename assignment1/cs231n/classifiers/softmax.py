@@ -97,8 +97,8 @@ def softmax_loss_vectorized(W, X, y, reg):
   loss = loss/num_train + loss_reg_term  # finalise loss
 
   # calculate gradient
-  e_scores = np.exp(scores)
-  sum_e_scores = np.reshape(np.sum(e_scores, axis=1), (num_train,1))
+  e_scores = np.exp(scores)  # exp rasied to scores
+  sum_e_scores = np.reshape(np.sum(e_scores, axis=1), (num_train, 1))
   M = e_scores * 1.0/sum_e_scores
   Y = np.zeros((num_train, num_class))
   Y[np.arange(num_train), y] = 1
