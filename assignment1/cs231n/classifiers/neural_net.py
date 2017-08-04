@@ -67,13 +67,11 @@ class TwoLayerNet(object):
     # Unpack variables from the params dictionary
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
-    N, D = X.shape
-
-    # a few more dimensions needed
-    H, C = W2.shape # size of hidden layer
+    N, D = X.shape  # N = number of examples, D = dimension of each example
+    H, C = W2.shape  # H = size of the hidden layer, C = number of classes
 
     # Compute the forward pass
-    scores = None
+    # scores = None
     #############################################################################
     # TODO: Perform the forward pass, computing the class scores for the input. #
     # Store the result in the scores variable, which should be an array of      #
@@ -105,7 +103,7 @@ class TwoLayerNet(object):
       return scores
 
     # Compute the loss
-    loss = None
+    # loss = None
     #############################################################################
     # TODO: Finish the forward pass, and compute the loss. This should include  #
     # both the data loss and L2 regularization for W1 and W2. Store the result  #
@@ -158,14 +156,16 @@ class TwoLayerNet(object):
     # into FC1 (with the bias trick): dL/dW1
     dW1 = np.dot(X.T, dfc1)
 
-    ## unpack gradients
     # include gradient from L2 regularisation
-    grads['W1'] = dW1[:-1] + 2 * reg * W1[:-1]
-    grads['W2'] = dW2[:-1] + 2 * reg * W2[:-1]
+    dW1 += 2 * reg * W1
+    dW2 += 2 * reg * W2
 
-    # gradient to bias
-    grads['b1'] = dW1[-1] + 2 * reg * W1[-1]
-    grads['b2'] = dW2[-1] + 2 * reg * W2[-1]
+    ## unpack gradients
+    grads['W1'] = dW1[:-1]
+    grads['W2'] = dW2[:-1]
+
+    grads['b1'] = dW1[-1]
+    grads['b2'] = dW2[-1]
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -193,6 +193,14 @@ class TwoLayerNet(object):
     - num_iters: Number of steps to take when optimizing.
     - batch_size: Number of training examples to use per step.
     - verbose: boolean; if true print progress during optimization.
+
+    Return:
+    A dictionary of records:
+    {
+      'loss_history': loss_history,
+      'train_acc_history': train_acc_history,
+      'val_acc_history': val_acc_history,
+    }
     """
     num_train = X.shape[0]
     iterations_per_epoch = max(num_train / batch_size, 1)
@@ -210,7 +218,9 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      pass
+      batch_idx = np.random.choice(num_train, batch_size, replace=True)
+      X_batch = X[batch_idx]
+      y_batch = y[batch_idx]
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -225,12 +235,19 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      pass
+      # update first FC layer
+      self.params['W1'] += - learning_rate * grads['W1']
+      self.params['b1'] += - learning_rate * grads['b1']
+
+      # update hidden layer
+      self.params['W2'] += - learning_rate * grads['W2']
+      self.params['b2'] += - learning_rate * grads['b2']
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
 
-      if verbose and it % 100 == 0:
+      if verbose and it % 100 == 0:  # HQ: display info every 100 iterations
         print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
       # Every epoch, check train and val accuracy and decay learning rate.
@@ -241,14 +258,50 @@ class TwoLayerNet(object):
         train_acc_history.append(train_acc)
         val_acc_history.append(val_acc)
 
-        # Decay learning rate
+        # Decay learning rate (annealing)
         learning_rate *= learning_rate_decay
 
     return {
       'loss_history': loss_history,
       'train_acc_history': train_acc_history,
-      'val_acc_history': val_acc_history,
-    }
+      'val_acc_history': val_acc_history
+      }
+
+  def forward_path_once(self, X):
+    """
+    packed staged forward path in one function
+
+    Inputs:
+    - X: A numpy array of shape (N, D) giving N D-dimensional data points to
+      classify.
+
+    Outputs:
+    - scores: a numpy array of shape (N, C), scores calculated from forward path
+    """
+
+    # unpack parameters
+    W1, b1 = self.params['W1'], self.params['b1']
+    W2, b2 = self.params['W2'], self.params['b2']
+
+    # some dimensions
+    N, D = X.shape  # N = number of examples, D = dimension of each example
+    H, C = W2.shape  # H = size of the hidden layer, C = number of classes
+
+    # staged forward path
+    # 1st FC o/p
+    W1 = np.vstack((W1, b1.reshape((1, H))))  # bias trick
+    X = np.hstack((X, np.ones((N, 1))))
+    fc1 = np.dot(X, W1)
+
+    # 1st ReLU o/p
+    fc1_relu = np.maximum(0, fc1)
+
+    # 2nd FC o/p
+    W2 = np.vstack((W2, b2.reshape((1, C))))  # bias trick
+    fc1_relu = np.hstack((fc1_relu, np.ones((N, 1))))
+    scores = np.dot(fc1_relu, W2)
+
+    return scores
 
   def predict(self, X):
     """
@@ -270,7 +323,10 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+
+    scores = self.forward_path_once(X)
+    y_pred = np.argmax(scores, axis=1)  # predict as the class with highest score
+
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
