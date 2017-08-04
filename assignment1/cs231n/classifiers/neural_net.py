@@ -269,7 +269,7 @@ class TwoLayerNet(object):
 
   def forward_path_once(self, X):
     """
-    packed staged forward path in one function
+    staged forward path packed in one function
 
     Inputs:
     - X: A numpy array of shape (N, D) giving N D-dimensional data points to
