@@ -19,7 +19,7 @@ class TwoLayerNet(object):
   The outputs of the second fully-connected layer are the scores for each class.
   """
 
-  def __init__(self, input_size, hidden_size, output_size, std=1e-4):
+  def __init__(self, input_size, output_size, hidden_size, std=1e-4):
     """
     Initialize the model. Weights are initialized to small random values and
     biases are initialized to zero. Weights and biases are stored in the
@@ -40,6 +40,11 @@ class TwoLayerNet(object):
     self.params['b1'] = np.zeros(hidden_size)
     self.params['W2'] = std * np.random.randn(hidden_size, output_size)
     self.params['b2'] = np.zeros(output_size)
+
+    # store the hyperparameters as a model attribute
+    # so we can track the best parameters easier
+    self.hyper_params = {}
+    self.hyper_params['hidden_size'] = hidden_size
 
   def loss(self, X, y=None, reg=0.0):
     """
@@ -175,7 +180,7 @@ class TwoLayerNet(object):
 
   def train(self, X, y, X_val, y_val,
             learning_rate=1e-3, learning_rate_decay=0.95,
-            reg=5e-6, num_iters=100,
+            reg=5e-6, num_epochs=1,
             batch_size=200, verbose=False):
     """
     Train this neural network using stochastic gradient descent.
@@ -190,7 +195,8 @@ class TwoLayerNet(object):
     - learning_rate_decay: Scalar giving factor used to decay the learning rate
       after each epoch.
     - reg: Scalar giving regularization strength.
-    - num_iters: Number of steps to take when optimizing.
+    - (deprecated) num_iters: Number of steps to take when optimizing.
+    - num_epochs: Number of training epochs
     - batch_size: Number of training examples to use per step.
     - verbose: boolean; if true print progress during optimization.
 
@@ -202,8 +208,16 @@ class TwoLayerNet(object):
       'val_acc_history': val_acc_history,
     }
     """
+
+    # store the hyperparameters in the model itself
+    self.hyper_params['learning_rate'] = learning_rate
+    self.hyper_params['num_epochs'] = num_epochs
+    self.hyper_params['reg'] = reg
+    # self.hyper_params['drop'] = 1  # future: drop out
+
     num_train = X.shape[0]
-    iterations_per_epoch = max(num_train / batch_size, 1)
+    iterations_per_epoch = int(max(num_train / batch_size, 1))
+    num_iters = num_epochs * iterations_per_epoch
 
     # Use SGD to optimize the parameters in self.model
     loss_history = []
@@ -247,11 +261,13 @@ class TwoLayerNet(object):
       #                             END OF YOUR CODE                          #
       #########################################################################
 
-      if verbose and it % 100 == 0:  # HQ: display info every 100 iterations
-        print('iteration %d / %d: loss %f' % (it, num_iters, loss))
+      if verbose and (it+1) % 100 == 0:  # HQ: display info every 100 iterations
+        print('iteration %d / %d: loss %f' % (it+1, num_iters, loss))
 
       # Every epoch, check train and val accuracy and decay learning rate.
-      if it % iterations_per_epoch == 0:
+      if (it+1) % iterations_per_epoch == 0:
+        if verbose:
+          print('number of epochs completed: %d' % ((it+1) / iterations_per_epoch))
         # Check accuracy
         train_acc = (self.predict(X_batch) == y_batch).mean()
         val_acc = (self.predict(X_val) == y_val).mean()

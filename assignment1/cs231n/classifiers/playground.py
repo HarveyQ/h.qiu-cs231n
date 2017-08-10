@@ -1,18 +1,47 @@
 import numpy as np
 
-# trying the lambda function
-def full_function(input1, input2):
-    x = input1 * input2
-    y = input1 + input2
-    return x, y
+# experimenting with meshgrid
+y = np.arange(0, 3, 1)
+x = y.copy()
+z = np.array([5])
+grid = np.meshgrid(x, y, z, indexing='xy')
 
-input2 = 3
-lf1 = lambda input1: full_function(input1, input2)
-print(lf1(input1=2))
+for ix in range(len(x)):
+    for iy in range(len(y)):
+        for iz in range(len(z)):
+            print(grid[0][ix, iy, iz], grid[1][ix, iy, iz], grid[2][ix, iy, iz])
+
+print(grid[0].shape)
+
+# z = np.sin(xx**2 + yy**2) / (xx**2 + yy**2)
+# h = plt.contou        rf(x,y,z)
+# plt.show()
+#
+# def test_func(x, y):
+#     return x+y+z
+# 
+# x = 2
+# y = 3
+# z = 4
+# 
+# print(test_func(x, y))
+# 
 
 
-lf2 = lambda input_tuple: full_function(input_tuple[0], input_tuple[1])
-print(lf2((2, 3)))
+
+# # trying the lambda function
+# def full_function(input1, input2):
+#     x = input1 * input2
+#     y = input1 + input2
+#     return x, y
+#
+# input2 = 3
+# lf1 = lambda input1: full_function(input1, input2)
+# print(lf1(input1=2))
+#
+#
+# lf2 = lambda input_tuple: full_function(input_tuple[0], input_tuple[1])
+# print(lf2((2, 3)))
 
 '''
 PyCharm remote deployment testing
