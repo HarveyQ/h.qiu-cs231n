@@ -51,13 +51,13 @@ def net_tuning(X_train, y_train, X_val, y_val, hyper_params_list, verbose=False)
     num_classes = 10  # warning: hard coded number (CIFAR-10)
 
     results = {}
+    best_tr_acc = 0
     best_val_acc = 0
     best_net = None
 
     hyper_params_count = 0
-    for idx in range(len(hyper_params_list)):
+    for hyper_params in hyper_params_list:
         # unpack hyperparameters
-        hyper_params = hyper_params_list[idx]
         hidden_size = hyper_params[0]
         learning_rate = hyper_params[1]
         num_epochs = hyper_params[2]
@@ -80,11 +80,15 @@ def net_tuning(X_train, y_train, X_val, y_val, hyper_params_list, verbose=False)
             best_val_acc = val_acc
             best_net = copy.deepcopy(net)  # store the best net model
 
+        # record the best training accuracy
+        if train_acc > best_tr_acc:
+            best_tr_acc = train_acc
+
         hyper_params_count += 1
         print('Hyperparameter combinations completed: %d / %d' % (hyper_params_count, len(hyper_params_list)))
-        print()
 
-    print('The best validation accuracy acheived: %f' % best_val_acc)
+    print('Best training accuracy achieved: %f' % best_tr_acc)
+    print('Best validation accuracy achieved: %f' % best_val_acc)
 
     print()
     print('Hyperparamters of the best net:')
