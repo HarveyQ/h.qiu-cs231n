@@ -4,4 +4,4 @@ The spring 2017 session is still in progress. I will track changes in assignment
 
 Two clones of this repo are deployed by me on:
 1. locally @mackbook air
-2. remotely on Google Cloud Enginer VM instance
+2. remotely on Google Cloud Engine VM instance
