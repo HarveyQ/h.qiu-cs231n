@@ -32,7 +32,7 @@ def hyper_params_comb(hyper_params_range):
     return hyper_params_list
 
 
-def net_tuning(X_train, y_train, X_val, y_val, hyper_params_list, verbose=False):
+def net_tunning(X_train, y_train, X_val, y_val, hyper_params_list, verbose=False):
     """
     Inputs:
     - X_train: numpy array of shape (num_train, D) training data
@@ -95,7 +95,7 @@ def net_tuning(X_train, y_train, X_val, y_val, hyper_params_list, verbose=False)
     print('hidden size: %d' % best_net.hyper_params['hidden_size'])
     print('learning rate: %f' % best_net.hyper_params['learning_rate'])
     print('number of epochs: %d' % best_net.hyper_params['num_epochs'])
-    print('regularisation strength: %f' % best_net.hyper_params['reg'])
+    print('regularisation strength: 10^(%f)' % np.log10(best_net.hyper_params['reg']))
     print()
 
-    return best_net, results
+    return best_net, results, best_val_acc
