@@ -261,13 +261,16 @@ class TwoLayerNet(object):
       #                             END OF YOUR CODE                          #
       #########################################################################
 
-      if verbose and (it+1) % 100 == 0:  # HQ: display info every 100 iterations
+      if verbose and (it+1) % 10 == 0:  # HQ: display info every 100 iterations
         print('iteration %d / %d: loss %f' % (it+1, num_iters, loss))
+        print('W2 sum: %f' % np.sum(self.params['W2']))
+        print('W1 sum: %f' % np.sum(self.params['W1']))
 
       # Every epoch, check train and val accuracy and decay learning rate.
       if (it+1) % iterations_per_epoch == 0:
         if verbose:
           print('number of epochs completed: %d' % ((it+1) / iterations_per_epoch))
+
         # Check accuracy
         train_acc = (self.predict(X_batch) == y_batch).mean()
         val_acc = (self.predict(X_val) == y_val).mean()
