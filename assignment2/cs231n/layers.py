@@ -1,7 +1,6 @@
 from builtins import range
 import numpy as np
 
-
 def affine_forward(x, w, b):
     """
     Computes the forward pass for an affine (fully-connected) layer.
@@ -25,7 +24,10 @@ def affine_forward(x, w, b):
     # TODO: Implement the affine forward pass. Store the result in out. You   #
     # will need to reshape the input into rows.                               #
     ###########################################################################
-    pass
+
+    x_in = x.reshape(x.shape[0], -1)  # reshape x into (N, D)
+    out = np.dot(x_in, w) + b.reshape(1, w.shape[1])  # calculate linear combination
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -53,7 +55,17 @@ def affine_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
-    pass
+    # get some dimensions right
+    N = x.shape[0]
+    x_in = x.reshape(x.shape[0], -1)  # reshape x into (N, D) for matrix calculation
+
+    dx = np.dot(dout, w.T)
+    dx = dx.reshape(x.shape)  # reshape dx into (N, d_1, ... d_k)
+    # dw = (1./N) * np.dot(x_in.T, dout)
+    # db = (1./N) * np.sum(dout, axis=0)
+
+    dw = np.dot(x_in.T, dout)
+    db = np.sum(dout, axis=0)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -75,7 +87,7 @@ def relu_forward(x):
     ###########################################################################
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
-    pass
+    out = np.maximum(0, x)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -98,7 +110,8 @@ def relu_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
-    pass
+    dx = dout.copy()
+    dx[x < 0] = 0
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -528,7 +541,7 @@ def svm_loss(x, y):
     num_pos = np.sum(margins > 0, axis=1)
     dx = np.zeros_like(x)
     dx[margins > 0] = 1
-    dx[np.arange(N), y] -= num_pos
+    dx[np.arange(N), y] -= num_pos  # derivative with respect to score_i_correct
     dx /= N
     return loss, dx
 
@@ -547,13 +560,13 @@ def softmax_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-    shifted_logits = x - np.max(x, axis=1, keepdims=True)
-    Z = np.sum(np.exp(shifted_logits), axis=1, keepdims=True)
+    shifted_logits = x - np.max(x, axis=1, keepdims=True)  # s - s_max
+    Z = np.sum(np.exp(shifted_logits), axis=1, keepdims=True)  # sum(exp(scores))
     log_probs = shifted_logits - np.log(Z)
     probs = np.exp(log_probs)
     N = x.shape[0]
     loss = -np.sum(log_probs[np.arange(N), y]) / N
     dx = probs.copy()
     dx[np.arange(N), y] -= 1
-    dx /= N
+    dx /= N   # ??? try to have a look at this 1/N
     return loss, dx
