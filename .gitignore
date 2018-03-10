@@ -8,5 +8,5 @@ cifar-10-batches-py
 playground*
 
 # ignore git sripts
-cs231n-git*
+git_scripts/*
 
