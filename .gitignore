@@ -1,3 +1,8 @@
 # no cifar-10 data
 cifar-10-batches-py
 
+# ignore compiled library files
+*.so
+
+# ignore all local testing "playground" code
+playground*

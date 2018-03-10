@@ -19,14 +19,14 @@ def affine_forward(x, w, b):
     - out: output, of shape (N, M)
     - cache: (x, w, b)
     """
-    out = None
+#     out = None
     ###########################################################################
     # TODO: Implement the affine forward pass. Store the result in out. You   #
     # will need to reshape the input into rows.                               #
     ###########################################################################
 
-    x_in = x.reshape(x.shape[0], -1)  # reshape x into (N, D)
-    out = np.dot(x_in, w) + b.reshape(1, w.shape[1])  # calculate linear combination
+    x_in = x.reshape(x.shape[0], -1)  # reshape into matrix (num_input, input_dim)
+    out = np.dot(x_in, w) + b.reshape(1, w.shape[1])  # affine forward calculation
 
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -55,17 +55,15 @@ def affine_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
-    # get some dimensions right
-    N = x.shape[0]
-    x_in = x.reshape(x.shape[0], -1)  # reshape x into (N, D) for matrix calculation
+    N = x.shape[0]  # number of data points
+    x_in = x.reshape(x.shape[0], -1)  # reshape into matrix (num_input, input_dim)
 
-    dx = np.dot(dout, w.T)
-    dx = dx.reshape(x.shape)  # reshape dx into (N, d_1, ... d_k)
-    # dw = (1./N) * np.dot(x_in.T, dout)
-    # db = (1./N) * np.sum(dout, axis=0)
+    dx = np.dot(dout, w.T)  # back prop into data
+    dx = dx.reshape(x.shape)  # reshape dx back into (N, d_1, ... d_k), the original shape
 
-    dw = np.dot(x_in.T, dout)
-    db = np.sum(dout, axis=0)
+    dw = np.dot(x_in.T, dout)  # back prop into weights
+    db = np.sum(dout, axis=0)  # back prop into biases
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -540,9 +538,9 @@ def svm_loss(x, y):
     loss = np.sum(margins) / N
     num_pos = np.sum(margins > 0, axis=1)
     dx = np.zeros_like(x)
-    dx[margins > 0] = 1
-    dx[np.arange(N), y] -= num_pos  # derivative with respect to score_i_correct
-    dx /= N
+    dx[margins > 0] = 1  # derivative with respect to score_j where j!=y_i
+    dx[np.arange(N), y] -= num_pos  # derivative with respect to score_y_i
+    dx /= N  # Is dw and db in layer modules saved by this 1/N???
     return loss, dx
 
 
@@ -566,7 +564,9 @@ def softmax_loss(x, y):
     probs = np.exp(log_probs)
     N = x.shape[0]
     loss = -np.sum(log_probs[np.arange(N), y]) / N
-    dx = probs.copy()
-    dx[np.arange(N), y] -= 1
-    dx /= N   # ??? try to have a look at this 1/N
+
+    # calculate gradient
+    dx = probs.copy()  # for dL/dx_j where j != yi
+    dx[np.arange(N), y] -= 1  # for dL/dx_yi
+    dx /= N
     return loss, dx

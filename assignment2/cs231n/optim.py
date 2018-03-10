@@ -58,24 +58,32 @@ def sgd_momentum(w, dw, config=None):
     if config is None: config = {}
     config.setdefault('learning_rate', 1e-2)
     config.setdefault('momentum', 0.9)
-    v = config.get('velocity', np.zeros_like(w))
+    config.setdefault('velocity', np.zeros_like(w))
 
-    next_w = None
+    # HQ: original code for velocity, made change for better consistency
+    # v = config.get('velocity', np.zeros_like(w))  # returns all zeros if key 'velocity does not exist
+    #  next_w = None
     ###########################################################################
     # TODO: Implement the momentum update formula. Store the updated value in #
     # the next_w variable. You should also use and update the velocity v.     #
     ###########################################################################
-    pass
+    mu = config['momentum']
+    lr = config['learning_rate']
+    v = config['velocity']
+
+    v = mu * v - lr * dw  # update velocity
+    w += v  # update parameters
+    next_w = w
+
+    config['velocity'] = v  # update config
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
-    config['velocity'] = v
-
     return next_w, config
 
 
 
-def rmsprop(x, dx, config=None):
+def rmsprop(w, dw, config=None):
     """
     Uses the RMSProp update rule, which uses a moving average of squared
     gradient values to set adaptive per-parameter learning rates.
@@ -91,23 +99,33 @@ def rmsprop(x, dx, config=None):
     config.setdefault('learning_rate', 1e-2)
     config.setdefault('decay_rate', 0.99)
     config.setdefault('epsilon', 1e-8)
-    config.setdefault('cache', np.zeros_like(x))
+    config.setdefault('cache', np.zeros_like(w))
 
-    next_x = None
+    # next_w = None
     ###########################################################################
     # TODO: Implement the RMSprop update formula, storing the next value of x #
-    # in the next_x variable. Don't forget to update cache value stored in    #
+    # in the next_w variable. Don't forget to update cache value stored in    #
     # config['cache'].                                                        #
     ###########################################################################
-    pass
+    # unpack config
+    eps = config['epsilon']
+    lr = config['learning_rate']
+    beta = config['decay_rate']
+    cache = config['cache']  # old cache
+
+    cache = beta * cache + (1-beta) * np.power(dw, 2)  # update cache
+    w -= lr * dw / (np.sqrt(cache) + eps)  # update parameters
+    next_w = w
+
+    # update config
+    config['cache'] = cache
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
+    return next_w, config
 
-    return next_x, config
 
-
-def adam(x, dx, config=None):
+def adam(w, dw, config=None):
     """
     Uses the Adam update rule, which incorporates moving averages of both the
     gradient and its square and a bias correction term.
@@ -126,19 +144,39 @@ def adam(x, dx, config=None):
     config.setdefault('beta1', 0.9)
     config.setdefault('beta2', 0.999)
     config.setdefault('epsilon', 1e-8)
-    config.setdefault('m', np.zeros_like(x))
-    config.setdefault('v', np.zeros_like(x))
+    config.setdefault('m', np.zeros_like(w))
+    config.setdefault('v', np.zeros_like(w))
     config.setdefault('t', 1)
 
-    next_x = None
+    # next_w = None
     ###########################################################################
     # TODO: Implement the Adam update formula, storing the next value of x in #
-    # the next_x variable. Don't forget to update the m, v, and t variables   #
+    # the next_w variable. Don't forget to update the m, v, and t variables   #
     # stored in config.                                                       #
     ###########################################################################
-    pass
+    # unpack config
+    lr = config['learning_rate']
+    beta1 = config['beta1']
+    beta2 = config['beta2']
+    m = config['m']
+    v = config['v']
+    t = config['t']
+    eps = config['epsilon']
+
+    m = beta1 * m + (1-beta1) * dw  # update m
+    v = beta2 * v + (1-beta2) * np.power(dw, 2)  # update v
+
+    mt = m / (1 - beta1 ** t)  # bias correction m
+    vt = v / (1 - beta2 ** t)  # bias correction v
+
+    w -= lr * mt / (np.sqrt(vt) + eps)  # update parameters
+    next_w = w
+
+    # update config
+    config['m'] = m
+    config['v'] = v
+    config['t'] += 1
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
-
-    return next_x, config
+    return next_w, config

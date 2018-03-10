@@ -12,26 +12,26 @@ def eval_numerical_gradient(f, x, verbose=True, h=0.00001):
     - x is the point (numpy array) to evaluate the gradient at
     """
 
-    fx = f(x) # evaluate function value at original point
+    # fx = f(x)  # evaluate function value at original point
     grad = np.zeros_like(x)
-    # iterate over all indexes in x
+    # iterate over all elements in x
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
 
         # evaluate function at x+h
-        ix = it.multi_index
-        oldval = x[ix]
-        x[ix] = oldval + h # increment by h
-        fxph = f(x) # evalute f(x + h)
-        x[ix] = oldval - h
-        fxmh = f(x) # evaluate f(x - h)
-        x[ix] = oldval # restore
+        ix = it.multi_index  # the current iterator index
+        oldval = x[ix]  # cache the old value
+        x[ix] = oldval + h  # x+h
+        fxph = f(x)  # evaluate f(x+h)
+        x[ix] = oldval - h  # x-h
+        fxmh = f(x)  # evaluate f(x-h)
+        x[ix] = oldval  # recover original value
 
         # compute the partial derivative with centered formula
-        grad[ix] = (fxph - fxmh) / (2 * h) # the slope
+        grad[ix] = (fxph - fxmh) / (2 * h)  # the slope
         if verbose:
             print(ix, grad[ix])
-        it.iternext() # step to next dimension
+        it.iternext()  # step to next dimension
 
     return grad
 
@@ -47,15 +47,16 @@ def eval_numerical_gradient_array(f, x, df, h=1e-5):
     while not it.finished:
         ix = it.multi_index
 
-        oldval = x[ix]
-        x[ix] = oldval + h
-        pos = f(x).copy()
-        x[ix] = oldval - h
-        neg = f(x).copy()
-        x[ix] = oldval
+        oldval = x[ix]  # cache old value
+        x[ix] = oldval + h  # x+h
+        pos = f(x).copy()  # f(x+h)
+        x[ix] = oldval - h  # x-h
+        neg = f(x).copy()  # f(x-h)
+        x[ix] = oldval  # recover original value
 
         grad[ix] = np.sum((pos - neg) * df) / (2 * h)  # gradient branches need to be summed
         it.iternext()
+
     return grad
 
 

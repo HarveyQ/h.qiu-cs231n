@@ -137,12 +137,13 @@ class Solver(object):
         if len(kwargs) > 0:
             extra = ', '.join('"%s"' % k for k in list(kwargs.keys()))
             raise ValueError('Unrecognized arguments %s' % extra)
+        # extra: a list of unrecognized keys joint by ','
 
         # Make sure the update rule exists, then replace the string
         # name with the actual function
         if not hasattr(optim, self.update_rule):
             raise ValueError('Invalid update_rule "%s"' % self.update_rule)
-        self.update_rule = getattr(optim, self.update_rule)
+        self.update_rule = getattr(optim, self.update_rule)  # getattr() construct a function
 
         self._reset()
 
@@ -263,7 +264,7 @@ class Solver(object):
         num_iterations = self.num_epochs * iterations_per_epoch
 
         for t in range(num_iterations):
-            self._step()
+            self._step()  # one training step, a rather tiny line that does all the heavy-lifting
 
             # Maybe print training loss
             if self.verbose and t % self.print_every == 0:
