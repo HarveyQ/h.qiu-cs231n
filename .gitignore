@@ -8,5 +8,4 @@ cifar-10-batches-py
 playground*
 
 # ignore git sripts
-git_scripts/*
-
+**/git_scripts
