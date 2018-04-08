@@ -75,7 +75,6 @@ class TwoLayerNet(object):
         - grads: Dictionary with the same keys as self.params, mapping parameter
           names to gradients of the loss with respect to those parameters.
         """
-        scores = None
         ############################################################################
         # TODO: Implement the forward pass for the two-layer net, computing the    #
         # class scores for X and storing them in the scores variable.              #
@@ -88,7 +87,7 @@ class TwoLayerNet(object):
         b2 = self.params['b2']
 
         A1, cache1 = affine_relu_forward(X, W1, b1)
-        scores, cache2 =  affine_forward(A1, W2, b2)
+        scores, cache2 = affine_forward(A1, W2, b2)
 
         ############################################################################
         #                             END OF YOUR CODE                             #

@@ -47,14 +47,14 @@ def eval_numerical_gradient_array(f, x, df, h=1e-5):
     while not it.finished:
         ix = it.multi_index
 
-        oldval = x[ix]  # cache old value
+        oldval = x[ix]  # store old value
         x[ix] = oldval + h  # x+h
         pos = f(x).copy()  # f(x+h)
         x[ix] = oldval - h  # x-h
         neg = f(x).copy()  # f(x-h)
         x[ix] = oldval  # recover original value
 
-        grad[ix] = np.sum((pos - neg) * df) / (2 * h)  # gradient branches need to be summed
+        grad[ix] = np.sum((pos - neg) * df) / (2 * h)  # sum gradient branches
         it.iternext()
 
     return grad

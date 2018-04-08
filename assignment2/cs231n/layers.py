@@ -50,15 +50,14 @@ def affine_backward(dout, cache):
     - dw: Gradient with respect to w, of shape (D, M)
     - db: Gradient with respect to b, of shape (M,)
     """
-    x, w, b = cache
-    dx, dw, db = None, None, None
+
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
-    N = x.shape[0]  # number of data points
-    x_in = x.reshape(x.shape[0], -1)  # reshape into matrix (num_input, input_dim)
+    x, w, b = cache
 
-    dx = np.dot(dout, w.T)  # back prop into data
+    x_in = x.reshape(x.shape[0], -1)  # reshape into matrix (num_input, input_dim)
+    dx = np.dot(dout, w.T)  # back prop into data, shape (N, D)
     dx = dx.reshape(x.shape)  # reshape dx back into (N, d_1, ... d_k), the original shape
 
     dw = np.dot(x_in.T, dout)  # back prop into weights
@@ -81,7 +80,6 @@ def relu_forward(x):
     - out: Output, of the same shape as x
     - cache: x
     """
-    out = None
     ###########################################################################
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
@@ -540,7 +538,7 @@ def svm_loss(x, y):
     dx = np.zeros_like(x)
     dx[margins > 0] = 1  # derivative with respect to score_j where j!=y_i
     dx[np.arange(N), y] -= num_pos  # derivative with respect to score_y_i
-    dx /= N  # Is dw and db in layer modules saved by this 1/N???
+    dx /= N
     return loss, dx
 
 
