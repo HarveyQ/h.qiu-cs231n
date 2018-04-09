@@ -9,3 +9,7 @@ playground*
 
 # ignore git sripts
 **/git_scripts
+
+# ignore start up scripts (as they are system-specific)
+cs231n-start.sh
+
