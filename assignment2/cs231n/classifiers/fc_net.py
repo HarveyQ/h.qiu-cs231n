@@ -109,9 +109,13 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         loss, dout = softmax_loss(scores, y)
+        # L2 regularisation
+        loss += 0.5 * self.reg * (np.sum(np.power(W1, 2)) + np.sum(np.power(W2, 2)))
+
         dA1, dW2, db2 = affine_backward(dout, cache2)
         dX, dW1, db1 = affine_relu_backward(dA1, cache1)
 
+        # add regularisation gradient, store weights and biases
         grads['W1'] = dW1 + self.reg * W1
         grads['b1'] = db1
         grads['W2'] = dW2 + self.reg * W2
@@ -181,12 +185,13 @@ class FullyConnectedNet(object):
         # parameters should be initialized to zero.                                #
         ############################################################################
         # Parameter initialization
+        # list of dimension of each layer
         self.layer_dims = [input_dim] + hidden_dims + [num_classes]
-        for l in range(self.num_layers):
-            l += 1  # so that l == layer No.
-            layer_ip_dim, layer_op_dim = self.layer_dims[l-1], self.layer_dims[l]
-            self.params['W'+str(l)] = weight_scale * np.random.randn(layer_ip_dim, layer_op_dim)
-            self.params['b'+str(l)] = np.zeros((1, layer_op_dim))
+        for layer_num in range(self.num_layers):
+            layer_num += 1  # index starts from 0, layer number starts from 1
+            layer_ip_dim, layer_op_dim = self.layer_dims[layer_num-1], self.layer_dims[layer_num]
+            self.params['W'+str(layer_num)] = weight_scale * np.random.randn(layer_ip_dim, layer_op_dim)
+            self.params['b'+str(layer_num)] = np.zeros((1, layer_op_dim))
 
         ## Todo: initialize batch norm
 
@@ -252,25 +257,28 @@ class FullyConnectedNet(object):
         data_loss, reg_loss = 0.0, 0.0
         dout = None
 
-        layer_ip = X  # initial layer input
-        for l in range(self.num_layers):
-            l += 1  # so that l == layer No.
+        layer_ip = X  # 1st layer input
+        for layer_num in range(self.num_layers):
+            layer_num += 1  # match dictionary keys (which start at 1)
 
             # Unpack parameters
-            layer_W = self.params['W'+str(l)]
-            layer_b = self.params['b'+str(l)]
+            layer_W = self.params['W'+str(layer_num)]
+            layer_b = self.params['b'+str(layer_num)]
             reg_loss += np.sum(np.power(layer_W, 2))
 
             # Calculate forward pass
-            if l < self.num_layers:
+            if layer_num < self.num_layers:
                 out, cache = affine_relu_forward(layer_ip, layer_W, layer_b)
+                if self.use_dropout:
+                    out, dropout_cache = dropout_forward(out, self.dropout_param)
+                    cache = (cache, dropout_cache)
                 layer_ip = out
             else:
                 scores, cache = affine_forward(layer_ip, layer_W, layer_b)
                 data_loss, dout = softmax_loss(scores, y)
 
             # Store the caches with dict instead of list, to avoid indexing confusion
-            caches['Layer' + str(l)] = cache
+            caches['Layer' + str(layer_num)] = cache
 
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -295,22 +303,26 @@ class FullyConnectedNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # Calculate the loss
-        reg_loss *= (0.5 * self.reg)
+        reg_loss *= 0.5 * self.reg
         loss = data_loss + reg_loss
 
-        # Back pass
-        for l in range(self.num_layers).__reversed__():
-            l += 1
+        # Back prop
+        # __reversed()__ reverse the order of iterator output
+        for layer_num in range(self.num_layers).__reversed__():
+            layer_num += 1
 
-            if l == self.num_layers:
-                dout, dW, db = affine_backward(dout, caches['Layer' + str(l)])
-                grads['W' + str(l)] = dW + self.reg * self.params['W'+str(l)]
-                grads['b' + str(l)] = db
-
+            if layer_num == self.num_layers:  # output layer
+                dout, dW, db = affine_backward(dout, caches['Layer' + str(layer_num)])
+                grads['W' + str(layer_num)] = dW + self.reg * self.params['W' + str(layer_num)]
+                grads['b' + str(layer_num)] = db
             else:
-                dout, dW, db = affine_relu_backward(dout, caches['Layer' + str(l)])
-                grads['W' + str(l)] = dW + self.reg * self.params['W'+str(l)]
-                grads['b' + str(l)] = db
+                if self.use_dropout:
+                    dout = dropout_backward(dout, caches['Layer' + str(layer_num)][1])
+                    dout, dW, db = affine_relu_backward(dout, caches['Layer' + str(layer_num)][0])
+                else:
+                    dout, dW, db = affine_relu_backward(dout, caches['Layer' + str(layer_num)])
+                grads['W' + str(layer_num)] = dW + self.reg * self.params['W' + str(layer_num)]
+                grads['b' + str(layer_num)] = db
 
         ############################################################################
         #                             END OF YOUR CODE                             #

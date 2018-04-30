@@ -55,7 +55,9 @@ def sgd_momentum(w, dw, config=None):
     - velocity: A numpy array of the same shape as w and dw used to store a
       moving average of the gradients.
     """
-    if config is None: config = {}
+    if config is None:
+        config = {}
+
     config.setdefault('learning_rate', 1e-2)
     config.setdefault('momentum', 0.9)
     config.setdefault('velocity', np.zeros_like(w))
@@ -72,15 +74,56 @@ def sgd_momentum(w, dw, config=None):
     v = config['velocity']
 
     v = mu * v - lr * dw  # update velocity
-    w += v  # update parameters
-    next_w = w
+    next_w = w + v
 
-    config['velocity'] = v  # update config
+    config['velocity'] = v  # update v in config for next iteration
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     return next_w, config
 
+
+# todo (me): test Nesterov Momentum
+def nesterov_momentum(w, dw, config=None):
+    """
+    Uses the Nesterov Momentum update rule, which uses MA of gradient at
+    the position after momentum part update ("look-ahead") to update
+
+    config format:
+    - learning_rate: Scalar learning rate.
+    - momentum: Scalar between 0 and 1 giving the momentum value.
+      Setting momentum = 0 reduces to sgd.
+    - velocity: A numpy array of the same shape as w and dw used to store a
+      moving average of the gradients.
+    """
+
+    if config is None:
+        config = {}
+
+    # set default
+    config.setdefault('learning_rate', 1e-2)
+    config.setdefault('momentum', 0.9)
+    config.setdefault('velocity', np.zeros_like(w))
+
+    # unpack config
+    mu = config['momentum']
+    lr = config['learning_rate']
+    v = config['velocity']
+
+    # update parameters
+    prev_v = v.copy()
+    v = mu * prev_v - lr * dw
+    next_w = w - mu * prev_v + (1 + mu) * v
+
+    # # alternative expression
+    # prev_v = v.copy()
+    # v = mu * prev_v - lr * dw
+    # next_w = w - lr * dw + mu * v
+
+    # update config
+    config['velocity'] = v
+
+    return next_w, config
 
 
 def rmsprop(w, dw, config=None):

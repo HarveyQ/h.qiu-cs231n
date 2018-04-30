@@ -120,7 +120,7 @@ class Solver(object):
         self.X_val = data['X_val']
         self.y_val = data['y_val']
 
-        # Unpack keyword arguments
+        # Unpack keyword arguments in **kwargs
         self.update_rule = kwargs.pop('update_rule', 'sgd')
         self.optim_config = kwargs.pop('optim_config', {})
         self.lr_decay = kwargs.pop('lr_decay', 1.0)
@@ -164,8 +164,9 @@ class Solver(object):
         # Make a deep copy of the optim_config for each parameter
         self.optim_configs = {}
         for p in self.model.params:
+            # construct a dict out of optim_config items (deep copy)
             d = {k: v for k, v in self.optim_config.items()}
-            self.optim_configs[p] = d
+            self.optim_configs[p] = d  # store that dictionary in optim_configs
 
 
     def _step(self):
@@ -231,7 +232,7 @@ class Solver(object):
           classified by the model.
         """
 
-        # Maybe subsample the data
+        # Subsample the data if user specified a sample number
         N = X.shape[0]
         if num_samples is not None and N > num_samples:
             mask = np.random.choice(N, num_samples)
@@ -264,7 +265,7 @@ class Solver(object):
         num_iterations = self.num_epochs * iterations_per_epoch
 
         for t in range(num_iterations):
-            self._step()  # one training step, a rather tiny line that does all the heavy-lifting
+            self._step()  # one training step, one-line heavy-lifting
 
             # Maybe print training loss
             if self.verbose and t % self.print_every == 0:
@@ -294,11 +295,12 @@ class Solver(object):
 
                 if self.verbose:
                     print('(Epoch %d / %d) train acc: %f; val_acc: %f' % (
-                           self.epoch, self.num_epochs, train_acc, val_acc))
+                           self.epoch, self.num_epochs, float(train_acc), float(val_acc)))
 
                 # Keep track of the best model
                 if val_acc > self.best_val_acc:
                     self.best_val_acc = val_acc
+                    # make a deep copy of the best parameters
                     self.best_params = {}
                     for k, v in self.model.params.items():
                         self.best_params[k] = v.copy()

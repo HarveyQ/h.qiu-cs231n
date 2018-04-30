@@ -1,9 +1,11 @@
+# [21 Apr 2018 update]: add python3-tk
+
 # Base image Ubuntu:16.04
 FROM ubuntu:16.04
 
 COPY requirements.txt /home
 RUN apt-get -y update
-RUN apt-get install -y python3 python3-pip nano
+RUN apt-get install -y python3 python3-pip python3-tk vim
 # Dependent packages for pillow
 RUN apt-get install -y zlib1g-dev libjpeg-dev libncurses5-dev
 RUN pip3 install --upgrade pip

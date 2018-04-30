@@ -19,7 +19,7 @@ def affine_forward(x, w, b):
     - out: output, of shape (N, M)
     - cache: (x, w, b)
     """
-#     out = None
+
     ###########################################################################
     # TODO: Implement the affine forward pass. Store the result in out. You   #
     # will need to reshape the input into rows.                               #
@@ -293,7 +293,8 @@ def dropout_forward(x, dropout_param):
         # TODO: Implement training phase forward pass for inverted dropout.   #
         # Store the dropout mask in the mask variable.                        #
         #######################################################################
-        pass
+        mask = (np.random.rand(*x.shape) < p) / p
+        out = np.multiply(x, mask)
         #######################################################################
         #                           END OF YOUR CODE                          #
         #######################################################################
@@ -301,7 +302,7 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # TODO: Implement the test phase forward pass for inverted dropout.   #
         #######################################################################
-        pass
+        out = x
         #######################################################################
         #                            END OF YOUR CODE                         #
         #######################################################################
@@ -328,7 +329,7 @@ def dropout_backward(dout, cache):
         #######################################################################
         # TODO: Implement training phase backward pass for inverted dropout   #
         #######################################################################
-        pass
+        dx = np.multiply(dout, mask)
         #######################################################################
         #                          END OF YOUR CODE                           #
         #######################################################################
@@ -534,11 +535,13 @@ def svm_loss(x, y):
     margins = np.maximum(0, x - correct_class_scores[:, np.newaxis] + 1.0)
     margins[np.arange(N), y] = 0
     loss = np.sum(margins) / N
+
     num_pos = np.sum(margins > 0, axis=1)
     dx = np.zeros_like(x)
     dx[margins > 0] = 1  # derivative with respect to score_j where j!=y_i
     dx[np.arange(N), y] -= num_pos  # derivative with respect to score_y_i
     dx /= N
+    #todo: why didn't I implement gradient of the regularisation? Did I implement this or Stanford?
     return loss, dx
 
 
