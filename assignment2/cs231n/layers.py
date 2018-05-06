@@ -153,6 +153,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     - cache: A tuple of values needed in the backward pass
     """
     mode = bn_param['mode']
+    # using dict.get() method to read parameter and set default in the same line
     eps = bn_param.get('eps', 1e-5)
     momentum = bn_param.get('momentum', 0.9)
 
@@ -177,7 +178,10 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # variance, storing your result in the running_mean and running_var   #
         # variables.                                                          #
         #######################################################################
-        pass
+        mean = (1/N) * np.sum(x, axis=0)
+        x0 = x - mean
+        var = (1/N) * np.sum(np.power(x, 2), axis=0)
+
         #######################################################################
         #                           END OF YOUR CODE                          #
         #######################################################################
