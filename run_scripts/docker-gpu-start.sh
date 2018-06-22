@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo nvidia-docker run -i -t \
+do nvidia-docker run -i -t \
 		-v ~/ssdUbu/courses/cs231n_qiuhuaqi:/home/cs231n \
 		-p 8888:8888 \
 		--rm=true \
