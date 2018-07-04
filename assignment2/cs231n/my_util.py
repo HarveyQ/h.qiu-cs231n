@@ -8,46 +8,46 @@ def run_model(session, predict, loss_val, Xd, yd,
     # have tensorflow compute accuracy
     correct_prediction = tf.equal(tf.argmax(predict,1), y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    
+
     # shuffle indicies
     train_indicies = np.arange(Xd.shape[0])
     np.random.shuffle(train_indicies)
 
     training_now = training is not None
-    
+
     # setting up variables we want to compute (and optimizing)
     # if we have a training function, add that to things we compute
     variables = [mean_loss,correct_prediction,accuracy]
     if training_now:
         variables[-1] = training
-    
+
     # counter 
     iter_cnt = 0
     for e in range(epochs):
         # keep track of losses and accuracy
         correct = 0
-        losses = [] 
+        losses = []
         # make sure we iterate over the dataset once
         for i in range(int(math.ceil(Xd.shape[0]/batch_size))):
             # generate indicies for the batch
             start_idx = (i*batch_size)%Xd.shape[0]  #why remainder?
             idx = train_indicies[start_idx:start_idx+batch_size]
-            
+
             # create a feed dictionary for this batch
             feed_dict = {X: Xd[idx,:],
                          y: yd[idx],
                          is_training: training_now }
             # get batch size
             actual_batch_size = yd[idx].shape[0]
-            
+
             # have tensorflow compute loss and correct predictions
             # and (if given) perform a training step
             loss, corr, _ = session.run(variables,feed_dict=feed_dict)
-            
+
             # aggregate performance stats
             losses.append(loss*actual_batch_size)
             correct += np.sum(corr)
-            
+
             # print every now and then
             if training_now and (iter_cnt % print_every) == 0:
                 print("Iteration {0}: with minibatch training loss = {1:.3g} and accuracy of {2:.2g}"\

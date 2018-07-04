@@ -32,7 +32,7 @@ def load_CIFAR10(ROOT):
     f = os.path.join(ROOT, 'data_batch_%d' % (b, ))
     X, Y = load_CIFAR_batch(f)
     xs.append(X)
-    ys.append(Y)    
+    ys.append(Y)
   Xtr = np.concatenate(xs)
   Ytr = np.concatenate(ys)
   del X, Y
@@ -50,7 +50,7 @@ def get_CIFAR10_data(num_training=49000, num_validation=1000, num_test=1000,
     # Load the raw CIFAR-10 data
     cifar10_dir = 'cs231n/datasets/cifar-10-batches-py'
     X_train, y_train, X_test, y_test = load_CIFAR10(cifar10_dir)
-        
+
     # Subsample the data
     mask = list(range(num_training, num_training + num_validation))
     X_val = X_train[mask]
@@ -85,7 +85,7 @@ def get_CIFAR10_data(num_training=49000, num_validation=1000, num_test=1000,
       'X_val': X_val, 'y_val': y_val,
       'X_test': X_test, 'y_test': y_test,
     }
-    
+
 
 def load_tiny_imagenet(path, dtype=np.float32, subtract_mean=True):
   """
